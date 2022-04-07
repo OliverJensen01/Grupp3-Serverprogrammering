@@ -1,0 +1,89 @@
+<project name="JavaEE Wildfly Server Build" default="BuildAll">
+
+    <property name="bin" value="./bin"/>
+    <property name="lib" value="./lib"/>
+    <property name="src" value="./src"/>
+
+
+
+	<!-- select a line that points to the path of your server deployment folder
+
+    WINDOWS VERSION:
+    <property name="server-dist" value="C:\Progra~1\wildfly\wildfly-10.0.0.Final\standalone\deployments"/>
+
+    MAC/LINUX VERSION:
+    <property name="server-dist" value="/opt/wildfly/wildfly/wildfly-10.0.0.Final/standalone/deployments"/>
+    -->
+
+	<property name="server-dist" value="D:\wildfly-23.0.0.Final\standalone\deployments\"/>
+
+
+		<property name="warfile" value="${server-dist}/StudentManagement.war"/>	 
+
+	    <path id="my.classpath">
+	        <pathelement path="${java.class.path}"/>
+	        <pathelement location="${bin}"/>
+
+	        <fileset dir="${lib}">
+	            <include name="*.jar"/>
+	        </fileset>
+
+	    </path>
+
+	    <target name="BuildAll"
+	            depends="clean, prep, compile, war"
+	            description="Complete rebuild.">
+	        <echo message="Build complete."/>
+	    </target>
+
+		<target name="classpath">
+			   <property name="current.classpath" refid="my.classpath"/>
+
+			   <echo level="info">
+			   Classpath is :
+			      ${current.classpath}
+			   </echo>
+		</target>
+
+	    <target name="clean">
+	        <delete dir="${bin}"/>
+	    </target>
+
+	    <target name="prep">
+	        <mkdir dir="${bin}"/>
+	    </target>
+
+	    <target name="compile"
+	     description="Compile all Java classes"
+	    	depends="prep">
+
+	        <javac srcdir="${src}" destdir="${bin}" debug="true" encoding="ISO-8859-1">
+	            <classpath refid="my.classpath"/>
+	        </javac>
+
+	        <echo message="Compiled."/>
+	    </target>
+
+
+		<target name="war" depends="compile"
+		                         description="Build War file.">
+			<copy todir="${bin}">
+				<fileset dir="${src}">
+					<include name="**/persistence.xml"/>
+				</fileset>
+			</copy>
+
+			<war destfile="${warfile}" webxml="web.xml">
+				<classes dir="${bin}">
+				</classes>
+
+			    <lib dir="${lib}"/>
+
+			</war>
+
+			<echo message="Built the war file."/>
+		</target>
+
+
+
+	</project>
